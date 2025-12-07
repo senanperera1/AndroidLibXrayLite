@@ -23,19 +23,19 @@ jobs:
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile init
 
-      - name: Setup NDK
+      - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r25c
+          ndk-version: r25c  # Use r25c, compatible with API 21+
 
-      - name: Build AAR
+      - name: Build AAR (ARM64 only)
         run: |
           cd mobile
           go mod init mobile
           go mod tidy
-          gomobile bind -target=android/arm64 -o ../libv2ray.aar .
+          gomobile bind -target=android/arm64 -androidapi=21 -o ../libv2ray.aar .
 
-      - name: Upload artifact
+      - name: Upload AAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: libv2ray
