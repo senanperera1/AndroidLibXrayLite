@@ -1,0 +1,42 @@
+name: Build V2Ray Mobile AAR
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-aar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Install gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r25c
+
+      - name: Build AAR
+        run: |
+          cd mobile
+          go mod init mobile
+          go mod tidy
+          gomobile bind -target=android/arm64 -o ../libv2ray.aar .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libv2ray
+          path: libv2ray.aar
